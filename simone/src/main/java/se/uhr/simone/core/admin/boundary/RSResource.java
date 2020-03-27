@@ -2,6 +2,7 @@ package se.uhr.simone.core.admin.boundary;
 
 import java.io.IOException;
 
+import javax.enterprise.inject.spi.CDI;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DELETE;
@@ -32,18 +33,18 @@ import se.uhr.simone.core.boundary.FeedCatagory;
 
 @Tag(name = "admin")
 @AdminCatagory
-@Path("admin/rs/response")
+@Path("/admin/rs/response")
 public class RSResource {
 
 	@Inject
-	private SimulatedRSResponse simulatedResponse;
+	SimulatedRSResponse simulatedResponse;
 
 	@Inject
-	private SimulatedRSResponseBody simulatedResponseResponseBody;
+	SimulatedRSResponseBody simulatedResponseResponseBody;
 
 	@Operation(summary = "Answer with specified code for all REST requests", description = "Enters a state where all REST requests are answered with the specified status code")
 	@PUT
-	@Path("code/global")
+	@Path("/code/global")
 	public Response setGlobalCode(@Parameter(name = "The HTTP status code", required = true) int statusCode) {
 		simulatedResponse.setGlobalCode(statusCode);
 		return Response.ok().build();
@@ -51,7 +52,7 @@ public class RSResource {
 
 	@Operation(summary = "Answer normally for all REST requests", description = "Resumes normal state")
 	@DELETE
-	@Path("code/global")
+	@Path("/code/global")
 	public Response resetGlobalResponseCode() {
 		simulatedResponse.setGlobalCode(SimulatedFeedResponse.NORMAL_STATUS_CODE);
 		simulatedResponse.resetCodeForAllPaths();
@@ -60,7 +61,7 @@ public class RSResource {
 
 	@Operation(summary = "Answer with specified code for a specific REST requests", description = "Enters a state where a specific REST requests are answered with the specified status code")
 	@PUT
-	@Path("code/path")
+	@Path("/code/path")
 	public Response setResponseCodeForPath(ResponseRepresentation response) {
 		simulatedResponse.setCodeForPath(response);
 		return Response.ok().build();
@@ -68,7 +69,7 @@ public class RSResource {
 
 	@Operation(summary = "Answer with normal code for a specific REST requests", description = "Resumes normal state for specified path")
 	@DELETE
-	@Path("code/path")
+	@Path("/code/path")
 	public Response resetResponseCodeForPath(@Parameter(name = "The REST path, i.e. the path sans web context") String path) {
 		simulatedResponse.resetCodeForPath(path.length() != 0 ? path : null);
 		return Response.ok().build();
@@ -76,7 +77,7 @@ public class RSResource {
 
 	@Operation(summary = "Answer with specified code and body for a specific REST requests", description = "Enters a state where a specific REST requests are answered with the specified status code and body")
 	@PUT
-	@Path("body")
+	@Path("/body")
 	public Response setResponseOverride(ResponseBodyRepresentation response) {
 		simulatedResponseResponseBody.setOverride(response.getPath(), response);
 		return Response.ok().build();
@@ -84,7 +85,7 @@ public class RSResource {
 
 	@Operation(summary = "Answer with specified code and body for a specific REST requests", description = "Enters a state where a specific REST requests are answered with the specified status code and body")
 	@DELETE
-	@Path("body")
+	@Path("/body")
 	public Response setDefaultResponseCode(@Parameter(name = "The REST path, i.e. the path sans web context") String path) {
 		simulatedResponseResponseBody.deleteOverride(path);
 		return Response.ok().build();
@@ -92,7 +93,7 @@ public class RSResource {
 
 	@Operation(summary = "Delay REST requests", description = "Delay each REST request with the specified time, set 0 to resume to normal")
 	@PUT
-	@Path("delay")
+	@Path("/delay")
 	public Response setDelay(@Parameter(name = "Time in seconds") int timeInSeconds) {
 		simulatedResponse.setDelay(timeInSeconds);
 		return Response.ok().build();
@@ -112,11 +113,14 @@ public class RSResource {
 
 	public static class RsServiceFilter implements ContainerResponseFilter {
 
-		@Inject
-		private SimulatedRSResponse simulatedResponse;
+		SimulatedRSResponse simulatedResponse;
 
-		@Inject
-		private SimulatedRSResponseBody simulatedResponseResponseBody;
+		SimulatedRSResponseBody simulatedResponseResponseBody;
+
+		public RsServiceFilter() {
+			simulatedResponse = CDI.current().select(SimulatedRSResponse.class).get();
+			simulatedResponseResponseBody = CDI.current().select(SimulatedRSResponseBody.class).get();
+		}
 
 		@Context
 		HttpServletRequest servletRequest;

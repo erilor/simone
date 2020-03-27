@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
 import se.uhr.simone.core.admin.control.FeedBlocker;
@@ -15,13 +16,14 @@ import se.uhr.simone.extension.api.feed.Content;
 import se.uhr.simone.extension.api.feed.FeedPublisher;
 import se.uhr.simone.extension.api.feed.Person;
 
+@Dependent
 public class SimulatorFeedPublisher implements FeedPublisher {
 
 	@Inject
-	private SimFeedRepository simFeedRepository;
+	SimFeedRepository simFeedRepository;
 
 	@Inject
-	private FeedBlocker feedBlocker;
+	FeedBlocker feedBlocker;
 
 	@Override
 	public void publish(AtomEntry atomEntry) {

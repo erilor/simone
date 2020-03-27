@@ -1,25 +1,19 @@
 package se.uhr.simone.core.feed.control;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
-import javax.ejb.Timeout;
-import javax.ejb.TimerConfig;
-import javax.ejb.TimerService;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Initialized;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
+import org.eclipse.microprofile.context.ManagedExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import se.uhr.simone.atom.feed.server.control.FeedCreator;
+import se.uhr.simone.core.control.SimoneWorker;
 import se.uhr.simone.core.feed.entity.SimFeedRepository;
 
-@Startup
-@Singleton
-@TransactionAttribute(TransactionAttributeType.NEVER)
+@ApplicationScoped
 public class SimFeedCreator {
 
 	private static final long DELAY = 2_000L;
@@ -27,31 +21,33 @@ public class SimFeedCreator {
 	private static final Logger LOG = LoggerFactory.getLogger(SimFeedCreator.class);
 
 	@Inject
-	private FeedCreator feedCreator;
+	@SimoneWorker
+	ManagedExecutor executor;
 
 	@Inject
-	private SimFeedRepository feedRepository;
+	FeedCreator feedCreator;
 
-	@Resource
-	private TimerService timer;
+	@Inject
+	SimFeedRepository feedRepository;
 
-	@PostConstruct
-	public void initialize() {
-		schedule();
+	public void init(@Observes @Initialized(ApplicationScoped.class) Object init) {
+		executor.submit(new SimFeedWorker());
 	}
 
-	@Timeout
-	public void connectEntriesToFeeds() {
-		try {
-			feedCreator.connectEntrysToFeeds(feedRepository);
-		} catch (Exception e) {
-			LOG.error("Failed to create feed", e);
-		} finally {
-			schedule();
+	class SimFeedWorker implements Runnable {
+
+		private boolean running = true;
+
+		@Override
+		public void run() {
+			while (running) {
+				try {
+					Thread.sleep(DELAY);
+					feedCreator.connectEntrysToFeeds(feedRepository);
+				} catch (Exception e) {
+					LOG.error("Failed to create feed", e);
+				}
+			}
 		}
-	}
-
-	private void schedule() {
-		timer.createSingleActionTimer(DELAY, new TimerConfig(null, false));
 	}
 }

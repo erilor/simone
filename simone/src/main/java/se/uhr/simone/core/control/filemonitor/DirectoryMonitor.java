@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
@@ -24,6 +25,7 @@ import se.uhr.simone.extension.api.fileloader.ExtensionContext;
 import se.uhr.simone.extension.api.fileloader.FileLoader;
 import se.uhr.simone.extension.api.fileloader.FileLoaderDescriptor;
 
+@Dependent
 public class DirectoryMonitor {
 
 	private static final String ERROR_LOG_SUFFIX = ".error.log";
@@ -55,7 +57,7 @@ public class DirectoryMonitor {
 			throw new IllegalArgumentException(dropinDirectory + " is not a directory");
 		}
 
-		LOG.info("monitoring directory " + dropinDirectory);
+		LOG.info("monitoring directory {}", dropinDirectory);
 	}
 
 	public void runAvailableJobs() {
@@ -80,7 +82,7 @@ public class DirectoryMonitor {
 			try (BufferedWriter log = Files.newBufferedWriter(logfile, Charset.defaultCharset(), StandardOpenOption.CREATE,
 					StandardOpenOption.TRUNCATE_EXISTING)) {
 
-				LOG.info("execute job: " + job.getPath());
+				LOG.info("execute job: {}", job.getPath());
 
 				FileExtensionContext context = new FileExtensionContext();
 
@@ -93,7 +95,7 @@ public class DirectoryMonitor {
 					FileUtil.renameWithSuffix(file, JOB_DONE_SUFFIX);
 					Files.deleteIfExists(logfile);
 				} else {
-					LOG.info("job finished with errors, se log for more information: " + logfile);
+					LOG.info("job finished with errors, se log for more information: {}", logfile);
 					FileUtil.renameWithSuffix(file, JOB_ERROR_SUFFIX);
 				}
 			}
@@ -123,7 +125,7 @@ public class DirectoryMonitor {
 				}
 			}
 		} catch (IOException ex) {
-			LOG.error("Can't read dropin directory " + dropinDirectory);
+			LOG.error("Can't read dropin directory {}", dropinDirectory);
 		}
 
 		return res;
@@ -148,6 +150,7 @@ public class DirectoryMonitor {
 
 		@Override
 		public void addEventId(UniqueIdentifier uid) {
+			// empty
 		}
 
 		@Override

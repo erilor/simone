@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Objects;
 import java.util.UUID;
 
+import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.POST;
@@ -37,21 +38,22 @@ import se.uhr.simone.core.feed.entity.SimFeedRepository;
 
 @Tag(name = "admin")
 @AdminCatagory
-@Path("admin/feed")
+@Path("/admin/feed")
+@Dependent
 public class FeedResource {
 
 	@Inject
-	private SimFeedRepository feedRepository;
+	SimFeedRepository feedRepository;
 
 	@Inject
-	private SimulatedFeedResponse simulatedResponse;
+	SimulatedFeedResponse simulatedResponse;
 
 	@Inject
-	private FeedBlocker feedBlocker;
+	FeedBlocker feedBlocker;
 
 	@Operation(summary = "Answer with specified code for all feed requests", description = "Enters a state where all feed requests are answered with the specified status code")
 	@PUT
-	@Path("response/code")
+	@Path("/response/code")
 	public Response setGlobalCode(@Parameter(name = "The HTTP status code", required = true) int statusCode) {
 		simulatedResponse.setGlobalCode(statusCode);
 		return Response.ok().build();
@@ -59,7 +61,7 @@ public class FeedResource {
 
 	@Operation(summary = "Answer normally for all feed requests", description = "Resumes normal state")
 	@DELETE
-	@Path("response/code")
+	@Path("/response/code")
 	public Response resetGlobalCode() {
 		simulatedResponse.setGlobalCode(SimulatedFeedResponse.NORMAL_STATUS_CODE);
 		return Response.ok().build();
@@ -67,7 +69,7 @@ public class FeedResource {
 
 	@Operation(summary = "Block feed events", description = "Enters a state where no feed event are created")
 	@PUT
-	@Path("block")
+	@Path("/block")
 	public Response blockFeed() {
 		feedBlocker.setBlocked(true);
 		return Response.ok().build();
@@ -75,7 +77,7 @@ public class FeedResource {
 
 	@Operation(summary = "Unblock feed events", description = "Resumes normal state")
 	@DELETE
-	@Path("block")
+	@Path("/block")
 	public Response unblockFeed() {
 		feedBlocker.setBlocked(false);
 		return Response.ok().build();
@@ -83,7 +85,7 @@ public class FeedResource {
 
 	@Operation(summary = "Delay feed requests", description = "Delay each feed request with the specified time, set 0 to resume to normal")
 	@PUT
-	@Path("response/delay")
+	@Path("/response/delay")
 	public Response setDelay(@Parameter(name = "Time in seconds") int timeInSeconds) {
 		simulatedResponse.setDelay(timeInSeconds);
 		return Response.ok().build();
@@ -91,7 +93,7 @@ public class FeedResource {
 
 	@Operation(summary = "Create a custom feed event")
 	@POST
-	@Path("event")
+	@Path("/event")
 	public Response publishEvent(AtomFeedEventRepresentation event) {
 		String uid = UUID.randomUUID().toString();
 

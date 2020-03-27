@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.ejb.Stateless;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -38,16 +37,15 @@ import se.uhr.simone.extension.api.fileloader.FileLoader;
 import se.uhr.simone.extension.api.fileloader.FileLoaderDescriptor;
 
 @Tag(name = "admin")
-@Stateless
 @AdminCatagory
-@Path("admin/database")
+@Path("/admin/database")
 public class DatabaseResource {
 
 	@Inject
-	private Instance<DatabaseAdmin> databaseAdmin;
+	Instance<DatabaseAdmin> databaseAdmin;
 
 	@Inject
-	private ExtensionManager extensionManager;
+	ExtensionManager extensionManager;
 
 	@Operation(summary = "Loads the database", description = "This has the same effects as dropping a file in the dropin directory")
 	@APIResponse(description = "Status and list of order ids", content = @Content(schema = @Schema(implementation = FileLoadResultRepresentation.class)))
