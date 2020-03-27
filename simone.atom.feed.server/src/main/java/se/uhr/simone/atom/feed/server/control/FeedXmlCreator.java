@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 
 import se.uhr.simone.atom.feed.server.entity.AtomFeed;
 import se.uhr.simone.atom.feed.server.entity.FeedRepository;
@@ -21,6 +22,8 @@ public class FeedXmlCreator {
 	 * @param feedRepository The {@link FeedRepository} to fetch {@link AtomFeed}s from.
 	 * @param baseUri The {@link URI} used for building links to next and previous feed. 
 	 */
+
+	@Transactional
 	public void createXmlForFeeds(FeedRepository feedRepository, URI baseUri) {
 
 		List<AtomFeed> feedsWithoutXml = feedRepository.getFeedsWithoutXml();

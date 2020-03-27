@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.enterprise.context.Dependent;
+import javax.transaction.Transactional;
 
 import se.uhr.simone.atom.feed.server.entity.AtomEntry;
 import se.uhr.simone.atom.feed.server.entity.AtomFeed;
@@ -17,6 +18,8 @@ public class FeedCreator {
 	 * 
 	 * @param feedRepository The {@link FeedRepository} to fetch {@link AtomEntry}s and {@link AtomFeed}s from.
 	 */
+
+	@Transactional
 	public void connectEntrysToFeeds(FeedRepository feedRepository) {
 
 		List<AtomEntry> entriesWithoutFeed = feedRepository.getEntriesNotConnectedToFeed();

@@ -15,10 +15,10 @@ import java.util.List;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import se.uhr.simone.core.control.Constants;
 import se.uhr.simone.core.control.extension.ExtensionManager;
 import se.uhr.simone.extension.api.feed.UniqueIdentifier;
 import se.uhr.simone.extension.api.fileloader.ExtensionContext;
@@ -36,28 +36,36 @@ public class DirectoryMonitor {
 
 	private static final Logger LOG = LoggerFactory.getLogger(DirectoryMonitor.class);
 
-	private final Path dropinDirectory;
-
 	private final ExtensionManager extensionManager;
 
-	@Inject
-	public DirectoryMonitor(ExtensionManager extensionManager) throws IOException {
-		this(extensionManager, Constants.DROPIN_DIRECTORY);
-	}
+	private final Path dropinDirectory;
 
-	public DirectoryMonitor(ExtensionManager extensionManager, Path dropinDirectory) throws IOException {
+	private boolean active = true;
+
+	@Inject
+	public DirectoryMonitor(ExtensionManager extensionManager,
+			@ConfigProperty(name = "se.uhr.simone.dropin", defaultValue = "dropin") Path dropinDirectory) {
+
 		this.extensionManager = extensionManager;
 		this.dropinDirectory = dropinDirectory;
 
 		if (!Files.exists(dropinDirectory)) {
-			throw new IllegalArgumentException(dropinDirectory + " does not exist");
+			active = false;
 		}
 
 		if (!Files.isDirectory(dropinDirectory)) {
-			throw new IllegalArgumentException(dropinDirectory + " is not a directory");
+			active = false;
 		}
 
-		LOG.info("monitoring directory {}", dropinDirectory);
+		if (active) {
+			LOG.info("monitoring dropin directory: {}", dropinDirectory);
+		} else {
+			LOG.info("directory {} does not exist, disabling dropin monitoring", dropinDirectory);
+		}
+	}
+
+	public boolean isActive() {
+		return active;
 	}
 
 	public void runAvailableJobs() {
@@ -113,14 +121,12 @@ public class DirectoryMonitor {
 
 					FileLoaderDescriptor desc = getJobDescriptor(path.getFileName().toString());
 
-					Path jobFile = dropinDirectory.resolve(path);
-
 					if (desc != null) {
-						Reader reader = Files.newBufferedReader(jobFile, Charset.defaultCharset());
+						Reader reader = Files.newBufferedReader(path, Charset.defaultCharset());
 
-						res.add(new DirectoryFileJob(desc.createJob(reader), jobFile));
+						res.add(new DirectoryFileJob(desc.createJob(reader), path));
 					} else {
-						LOG.debug("No match for: {}", jobFile);
+						LOG.debug("No match for: {}", path);
 					}
 				}
 			}

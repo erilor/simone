@@ -1,5 +1,7 @@
 package se.uhr.simone.core.feed.control;
 
+import java.util.concurrent.Callable;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Initialized;
 import javax.enterprise.event.Observes;
@@ -34,20 +36,24 @@ public class SimFeedCreator {
 		executor.submit(new SimFeedWorker());
 	}
 
-	class SimFeedWorker implements Runnable {
+	class SimFeedWorker implements Callable<Void> {
 
 		private boolean running = true;
 
 		@Override
-		public void run() {
+		public Void call() throws Exception {
 			while (running) {
 				try {
 					Thread.sleep(DELAY);
 					feedCreator.connectEntrysToFeeds(feedRepository);
+				} catch (InterruptedException e) {
+					throw e;
 				} catch (Exception e) {
-					LOG.error("Failed to create feed", e);
+					LOG.error("failed to create feed", e);
 				}
 			}
+
+			return null;
 		}
 	}
 }

@@ -1,5 +1,7 @@
 package se.uhr.simone.core.control.filemonitor;
 
+import java.util.concurrent.Callable;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Initialized;
 import javax.enterprise.event.Observes;
@@ -12,11 +14,11 @@ import org.slf4j.LoggerFactory;
 import se.uhr.simone.core.control.SimoneWorker;
 
 @ApplicationScoped
-public class MonitorScheduler {
+public class DirectoryMonitorScheduler {
 
-	private static final long DELAY = 1000L;
+	private static final long DELAY = 1_000L;
 
-	private static final Logger LOG = LoggerFactory.getLogger(MonitorScheduler.class);
+	private static final Logger LOG = LoggerFactory.getLogger(DirectoryMonitorScheduler.class);
 
 	@Inject
 	@SimoneWorker
@@ -29,20 +31,22 @@ public class MonitorScheduler {
 		executor.submit(new DirectoryMonitorWorker());
 	}
 
-	class DirectoryMonitorWorker implements Runnable {
-
-		private boolean running = true;
+	class DirectoryMonitorWorker implements Callable<Void> {
 
 		@Override
-		public void run() {
-			while (running) {
+		public Void call() throws Exception {
+			while (monitor.isActive()) {
 				try {
 					Thread.sleep(DELAY);
 					monitor.runAvailableJobs();
+				} catch (InterruptedException e) {
+					throw e;
 				} catch (Exception e) {
-					LOG.error("Failed to create feed", e);
+					LOG.error("dropin directory monitoring failed", e);
 				}
 			}
+
+			return null;
 		}
 	}
 }

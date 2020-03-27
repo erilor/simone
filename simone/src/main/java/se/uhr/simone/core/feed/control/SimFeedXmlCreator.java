@@ -1,5 +1,7 @@
 package se.uhr.simone.core.feed.control;
 
+import java.util.concurrent.Callable;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Initialized;
 import javax.enterprise.event.Observes;
@@ -10,16 +12,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import se.uhr.simone.atom.feed.server.control.FeedXmlCreator;
+import se.uhr.simone.core.control.SimoneConfiguration;
 import se.uhr.simone.core.control.SimoneWorker;
 import se.uhr.simone.core.feed.entity.SimFeedRepository;
-import se.uhr.simone.extension.api.SimoneProperties;
 
 @ApplicationScoped
 public class SimFeedXmlCreator {
 
 	private static final long DELAY = 2_000L;
 
-	private static final Logger LOG = LoggerFactory.getLogger(SimFeedCreator.class);
+	private static final Logger LOG = LoggerFactory.getLogger(SimFeedXmlCreator.class);
+
+	@Inject
+	SimoneConfiguration config;
 
 	@Inject
 	@SimoneWorker
@@ -35,20 +40,24 @@ public class SimFeedXmlCreator {
 		executor.submit(new SimFeedWorker());
 	}
 
-	class SimFeedWorker implements Runnable {
+	class SimFeedWorker implements Callable<Void> {
 
 		private boolean running = true;
 
 		@Override
-		public void run() {
+		public Void call() throws Exception {
 			while (running) {
 				try {
 					Thread.sleep(DELAY);
-					feedXmlCreator.createXmlForFeeds(feedRepository, SimoneProperties.getFeedBaseURI());
+					feedXmlCreator.createXmlForFeeds(feedRepository, config.getFeedBaseURI());
+				} catch (InterruptedException e) {
+					throw e;
 				} catch (Exception e) {
-					LOG.error("Failed to create feed", e);
+					LOG.error("failed to create xml archive", e);
 				}
 			}
+
+			return null;
 		}
 	}
 }
