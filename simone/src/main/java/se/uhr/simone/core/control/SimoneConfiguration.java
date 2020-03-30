@@ -12,7 +12,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 public class SimoneConfiguration {
 
 	@Inject
-	@ConfigProperty(name = "se.uhr.simone.base.uri", defaultValue = "http://localhost:8080")
+	@ConfigProperty(name = "simone.base.uri", defaultValue = "http://localhost:8080")
 	URI root;
 
 	public URI getBaseRestURI() {

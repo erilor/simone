@@ -44,7 +44,7 @@ public class DirectoryMonitor {
 
 	@Inject
 	public DirectoryMonitor(ExtensionManager extensionManager,
-			@ConfigProperty(name = "se.uhr.simone.dropin", defaultValue = "dropin") Path dropinDirectory) {
+			@ConfigProperty(name = "simone.dropin", defaultValue = "dropin") Path dropinDirectory) {
 
 		this.extensionManager = extensionManager;
 		this.dropinDirectory = dropinDirectory;

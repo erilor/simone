@@ -68,16 +68,11 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-api</artifactId>
-                <version>1.7.28</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.eclipse.microprofile.openapi</groupId>
-                <artifactId>microprofile-openapi-api</artifactId>
-                <version>1.1.2</version>
-                <scope>provided</scope>
+                <groupId>org.eclipse.microprofile</groupId>
+                <artifactId>microprofile</artifactId>
+                <version>3.3</version>
+                <scope>import</scope>
+                <type>pom</type>
             </dependency>
 
             <dependency>
@@ -88,10 +83,9 @@
             </dependency>
 
             <dependency>
-                <groupId>org.eclipse.microprofile.config</groupId>
-                <artifactId>microprofile-config-api</artifactId>
-                <version>1.4</version>
-                <scope>provided</scope>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>1.7.28</version>
             </dependency>
 
             <dependency>
@@ -99,12 +93,6 @@
                 <artifactId>jakarta.servlet-api</artifactId>
                 <version>4.0.3</version>
                 <scope>provided</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>org.flywaydb</groupId>
-                <artifactId>flyway-core</artifactId>
-                <version>6.0.7</version>
             </dependency>
 
         </dependencies>
@@ -115,7 +103,6 @@
         <dependency>
             <groupId>javax.ws.rs</groupId>
             <artifactId>javax.ws.rs-api</artifactId>
-            <version>2.1.1</version>
             <scope>provided</scope>
         </dependency>
 
@@ -131,7 +118,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
 
         <dependency>
             <groupId>jakarta.transaction</groupId>
