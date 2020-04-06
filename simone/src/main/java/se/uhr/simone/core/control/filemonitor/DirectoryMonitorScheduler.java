@@ -3,7 +3,6 @@ package se.uhr.simone.core.control.filemonitor;
 import java.util.concurrent.Callable;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.Initialized;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
@@ -12,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import se.uhr.simone.core.control.SimoneWorker;
+import se.uhr.simone.extension.api.SimoneStartupEvent;
 
 @ApplicationScoped
 public class DirectoryMonitorScheduler {
@@ -27,7 +27,7 @@ public class DirectoryMonitorScheduler {
 	@Inject
 	private DirectoryMonitor monitor;
 
-	public void init(@Observes @Initialized(ApplicationScoped.class) Object init) {
+	public void init(@Observes SimoneStartupEvent ev) {
 		executor.submit(new DirectoryMonitorWorker());
 	}
 
@@ -37,8 +37,8 @@ public class DirectoryMonitorScheduler {
 		public Void call() throws Exception {
 			while (monitor.isActive()) {
 				try {
-					Thread.sleep(DELAY);
 					monitor.runAvailableJobs();
+					Thread.sleep(DELAY);
 				} catch (InterruptedException e) {
 					throw e;
 				} catch (Exception e) {

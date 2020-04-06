@@ -34,6 +34,8 @@ void se.uhr.simone.extension.api.feed.FeedPublisher#publish(AtomEntry entry);
 
 * Datasource, The application is required to produce a CDI bean of type `javax.sql.DataSource` with qualifier `@FeedDS` to be used by the feed server. The Datasource must be initilized with flyway migration located on the classpath.
 
+* A CDI event `se.uhr.simone.extension.api.SimoneStartupEvent` must be fired when the server is started and ready.
+
 ## Build
 
 ```bash

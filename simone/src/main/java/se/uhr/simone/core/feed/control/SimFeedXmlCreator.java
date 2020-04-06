@@ -3,7 +3,6 @@ package se.uhr.simone.core.feed.control;
 import java.util.concurrent.Callable;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.Initialized;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
@@ -15,6 +14,7 @@ import se.uhr.simone.atom.feed.server.control.FeedXmlCreator;
 import se.uhr.simone.core.control.SimoneConfiguration;
 import se.uhr.simone.core.control.SimoneWorker;
 import se.uhr.simone.core.feed.entity.SimFeedRepository;
+import se.uhr.simone.extension.api.SimoneStartupEvent;
 
 @ApplicationScoped
 public class SimFeedXmlCreator {
@@ -36,7 +36,7 @@ public class SimFeedXmlCreator {
 	@Inject
 	SimFeedRepository feedRepository;
 
-	public void init(@Observes @Initialized(ApplicationScoped.class) Object init) {
+	public void init(@Observes SimoneStartupEvent ev) {
 		executor.submit(new SimFeedWorker());
 	}
 
@@ -48,8 +48,8 @@ public class SimFeedXmlCreator {
 		public Void call() throws Exception {
 			while (running) {
 				try {
-					Thread.sleep(DELAY);
 					feedXmlCreator.createXmlForFeeds(feedRepository, config.getFeedBaseURI());
+					Thread.sleep(DELAY);
 				} catch (InterruptedException e) {
 					throw e;
 				} catch (Exception e) {

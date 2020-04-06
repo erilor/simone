@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 
 import se.uhr.simone.core.admin.control.FeedBlocker;
 import se.uhr.simone.core.feed.entity.SimFeedRepository;
@@ -25,6 +26,7 @@ public class SimulatorFeedPublisher implements FeedPublisher {
 	@Inject
 	FeedBlocker feedBlocker;
 
+	@Transactional
 	@Override
 	public void publish(AtomEntry atomEntry) {
 		if (!feedBlocker.isBlocked()) {
